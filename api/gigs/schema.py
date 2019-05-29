@@ -17,13 +17,15 @@ class CreateGig(graphene.Mutation):
         Creates a new gig
     """
     class Arguments:
-        title = graphene.String()
-        price = graphene.String()
-        description = graphene.String()
-        contact_phone = graphene.String()
-        contact_email = graphene.String()
-        contact_name = graphene.String()
-    
+        title = graphene.String(required=True)
+        price = graphene.String(required=True)
+        description = graphene.String(required=True)
+        contact_phone = graphene.String(required=True)
+        contact_email = graphene.String(required=True)
+        contact_name = graphene.String(required=True)
+        location = graphene.String(required=True)
+        hours = graphene.String(required=True)
+
     gig = graphene.Field(Gig)
 
     def mutate(self, info, **kwargs):
@@ -34,6 +36,8 @@ class CreateGig(graphene.Mutation):
             contact_phone=kwargs['contact_phone'],
             contact_email=kwargs['contact_email'],
             contact_name=kwargs['contact_name'],
+            location=kwargs['location'],
+            hours=kwargs['hours']
         )
         gig.save()
         if gig:
@@ -62,12 +66,14 @@ class Query(graphene.ObjectType):
 class Mutation(graphene.ObjectType):
     create_gig = CreateGig.Field(
         description="Creates a new gig and takes the arguments\
-            \n- title: title of the gig\
-            \n- price: Price of the gig\
-            \n- desription: description of the gig\
-            \n- contact_email: email of creator\
-            \n- contact_name: name of creator\
-            \n- contact_phone: phone number of creator")
+            [required]\n- title: title of the gig[required]\
+            [required]\n- price: Price of the gig[required]\
+            [required]\n- desription: description of the gig[required]\
+            [required]\n- contact_email: email of creator[required]\
+            [required]\n- contact_name: name of creator[required]\
+            [required]\n- contact_phone: phone number of creator[required]\
+            [required]\n- location: location of the gig[required]\
+            [required]\n- hours: hours it'll take to complete[required]")
 
 
 schema = graphene.Schema(query=Query, mutation=Mutation)

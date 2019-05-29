@@ -2,7 +2,7 @@ from datetime import datetime
 from mongoengine import Document, EmbeddedDocument
 from mongoengine.fields import (
 	DateTimeField,
-	ReferenceField, StringField
+	StringField
 )
 
 
@@ -15,3 +15,5 @@ class Gig(Document):
     contact_phone = StringField()
     contact_email = StringField()
     contact_name = StringField()
+    location = StringField()
+    hours = StringField()
