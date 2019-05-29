@@ -3,7 +3,6 @@ from graphene.relay import Node
 from graphql import GraphQLError
 from graphene_mongo import MongoengineConnectionField, MongoengineObjectType
 from api.gigs.models import Gig as GigModel
-from mongoengine import *
 
 class Gig(MongoengineObjectType):
     """
@@ -47,12 +46,18 @@ class GigsList(graphene.ObjectType):
 
 class Query(graphene.ObjectType):
     get_all_gigs = graphene.Field(GigsList,
-                                 description="Returns all gigs")
-    
-    def resolve_get_all_gigs(self, info):
-        gigs = list(GigModel.objects.all())
+                                  limit=graphene.Int(),
+                                  offset=graphene.Int(),
+                                  description="Returns all gigs and takes the following arguments\
+                                  \n- limit: Amount of gigs to return\
+                                  \n- offset: Amount of gigs to skip")
+
+    def resolve_get_all_gigs(self, info, **kwargs):
+        limit = kwargs['limit']
+        offset = kwargs['offset']
+        gigs = list(GigModel.objects.skip(offset).limit(limit))
         return GigsList(gigs=gigs)
-        
+
 
 class Mutation(graphene.ObjectType):
     create_gig = CreateGig.Field(
