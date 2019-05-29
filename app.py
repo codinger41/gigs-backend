@@ -1,11 +1,12 @@
+import os
 from flask import Flask
 from flask_graphql import GraphQLView
 from api.gigs.schema import schema
 from mongoengine import connect
+from settings import settings
 
 app = Flask(__name__)
-app.debug = True
-
+app.config.from_object(settings)
 app.add_url_rule(
 	'/graphql',
 	view_func=GraphQLView.as_view(
@@ -16,5 +17,5 @@ app.add_url_rule(
 )
 
 if __name__ == '__main__':
-    connect(host='mongodb://admin:admin123@ds263146.mlab.com:63146/gigs', alias='default')
+    connect(host=settings.MONGODB_URL, alias='default')
     app.run()
