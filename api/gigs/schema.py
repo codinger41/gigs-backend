@@ -2,7 +2,7 @@ import graphene
 from graphene.relay import Node
 from graphql import GraphQLError
 from graphene_mongo import MongoengineConnectionField, MongoengineObjectType
-from models import Gig as GigModel
+from api.gigs.models import Gig as GigModel
 from mongoengine import *
 
 class Gig(MongoengineObjectType):
