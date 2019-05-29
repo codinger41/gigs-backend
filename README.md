@@ -34,6 +34,8 @@ Now we can install our dependencies:
 pip install -r requirements.txt
 ```
 
+- Make a `.env` file, fill it with details from the `.env.sample` file.
+
 Now the following command will setup the database, and start the server:
 
 ```bash
