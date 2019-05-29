@@ -41,10 +41,18 @@ class CreateGig(graphene.Mutation):
             return CreateGig(gig=gig)
         return GraphQLError("Action Failed")
 
+class GigsList(graphene.ObjectType):
+    gigs = graphene.List(Gig,
+                         description="Returns all gigs")
 
 class Query(graphene.ObjectType):
-    get_all_gigs = MongoengineConnectionField(Gig)
-
+    get_all_gigs = graphene.Field(GigsList,
+                                 description="Returns all gigs")
+    
+    def resolve_get_all_gigs(self, info):
+        gigs = list(GigModel.objects.all())
+        return GigsList(gigs=gigs)
+        
 
 class Mutation(graphene.ObjectType):
     create_gig = CreateGig.Field(
