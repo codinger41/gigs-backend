@@ -24,7 +24,7 @@ class CreateGig(graphene.Mutation):
         contact_email = graphene.String(required=True)
         contact_name = graphene.String(required=True)
         location = graphene.String(required=True)
-        hours = graphene.String(required=True)
+        category = graphene.String(required=True)
 
     gig = graphene.Field(Gig)
 
@@ -37,7 +37,7 @@ class CreateGig(graphene.Mutation):
             contact_email=kwargs['contact_email'],
             contact_name=kwargs['contact_name'],
             location=kwargs['location'],
-            hours=kwargs['hours']
+            category=kwargs['category']
         )
         gig.save()
         if gig:
@@ -56,12 +56,43 @@ class Query(graphene.ObjectType):
                                   \n- limit: Amount of gigs to return\
                                   \n- offset: Amount of gigs to skip")
 
+    get_gigs_by_location = graphene.Field(GigsList,
+                                       limit=graphene.Int(),
+                                       offset=graphene.Int(),
+                                       location=graphene.String(),
+                                       description="Returns all gigs and takes the following arguments\
+                                       \n- limit: Amount of gigs to return\
+                                       \n- offset: Amount of gigs to skip\
+                                       \n- location: Location to search from")
+    
+    get_gigs_by_category = graphene.Field(GigsList,
+                                       limit=graphene.Int(),
+                                       offset=graphene.Int(),
+                                       category=graphene.String(),
+                                       description="Returns all gigs and takes the following arguments\
+                                       \n- limit: Amount of gigs to return\
+                                       \n- offset: Amount of gigs to skip\
+                                       \n- category: category to search for")
+
     def resolve_get_all_gigs(self, info, **kwargs):
         limit = kwargs['limit']
         offset = kwargs['offset']
         gigs = list(GigModel.objects.skip(offset).limit(limit))
         return GigsList(gigs=gigs)
 
+    def resolve_get_gigs_by_location(self, info, **kwargs):
+        limit = kwargs['limit']
+        offset = kwargs['offset']
+        location = kwargs['location']
+        gigs = list(GigModel.objects(location=location).skip(offset).limit(limit))
+        return GigsList(gigs=gigs)
+
+    def resolve_get_gigs_by_category(self, info, **kwargs):
+        limit = kwargs['limit']
+        offset = kwargs['offset']
+        category = kwargs['category']
+        gigs = list(GigModel.objects(category=category).skip(offset).limit(limit))
+        return GigsList(gigs=gigs)
 
 class Mutation(graphene.ObjectType):
     create_gig = CreateGig.Field(
@@ -73,7 +104,7 @@ class Mutation(graphene.ObjectType):
             [required]\n- contact_name: name of creator[required]\
             [required]\n- contact_phone: phone number of creator[required]\
             [required]\n- location: location of the gig[required]\
-            [required]\n- hours: hours it'll take to complete[required]")
+            [required]\n- category: category of the gig[required]")
 
 
 schema = graphene.Schema(query=Query, mutation=Mutation)
