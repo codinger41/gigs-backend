@@ -52,17 +52,13 @@ class Query(graphene.ObjectType):
     get_all_gigs = graphene.Field(GigsList,
                                   limit=graphene.Int(),
                                   offset=graphene.Int(),
-                                  description="Returns all gigs and takes the following arguments\
-                                  \n- limit: Amount of gigs to return\
-                                  \n- offset: Amount of gigs to skip")
+                                  description="Returns all gigs and takes the following arguments")
 
     get_gigs_by_location = graphene.Field(GigsList,
                                        limit=graphene.Int(),
                                        offset=graphene.Int(),
                                        location=graphene.String(),
                                        description="Returns all gigs and takes the following arguments\
-                                       \n- limit: Amount of gigs to return\
-                                       \n- offset: Amount of gigs to skip\
                                        \n- location: Location to search from")
     
     get_gigs_by_category = graphene.Field(GigsList,
@@ -70,28 +66,20 @@ class Query(graphene.ObjectType):
                                        offset=graphene.Int(),
                                        category=graphene.String(),
                                        description="Returns all gigs and takes the following arguments\
-                                       \n- limit: Amount of gigs to return\
-                                       \n- offset: Amount of gigs to skip\
                                        \n- category: category to search for")
 
     def resolve_get_all_gigs(self, info, **kwargs):
-        limit = kwargs['limit']
-        offset = kwargs['offset']
-        gigs = list(GigModel.objects.skip(offset).limit(limit))
+        gigs = list(GigModel.objects.order_by('-created_at'))
         return GigsList(gigs=gigs)
 
     def resolve_get_gigs_by_location(self, info, **kwargs):
-        limit = kwargs['limit']
-        offset = kwargs['offset']
         location = kwargs['location']
-        gigs = list(GigModel.objects(location=location).skip(offset).limit(limit))
+        gigs = list(GigModel.objects(location=location))
         return GigsList(gigs=gigs)
 
     def resolve_get_gigs_by_category(self, info, **kwargs):
-        limit = kwargs['limit']
-        offset = kwargs['offset']
         category = kwargs['category']
-        gigs = list(GigModel.objects(category=category).skip(offset).limit(limit))
+        gigs = list(GigModel.objects(category=category))
         return GigsList(gigs=gigs)
 
 class Mutation(graphene.ObjectType):

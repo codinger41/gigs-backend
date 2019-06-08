@@ -6,6 +6,7 @@ from mongoengine import connect
 from settings import settings
 
 app = Flask(__name__)
+app.debug = True
 app.config.from_object(settings)
 app.add_url_rule(
 	'/graphql',
