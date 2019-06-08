@@ -16,4 +16,3 @@ class Gig(Document):
     contact_email = StringField()
     contact_name = StringField()
     location = StringField()
-    category = StringField()

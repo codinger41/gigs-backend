@@ -24,7 +24,6 @@ class CreateGig(graphene.Mutation):
         contact_email = graphene.String(required=True)
         contact_name = graphene.String(required=True)
         location = graphene.String(required=True)
-        category = graphene.String(required=True)
 
     gig = graphene.Field(Gig)
 
@@ -36,8 +35,7 @@ class CreateGig(graphene.Mutation):
             contact_phone=kwargs['contact_phone'],
             contact_email=kwargs['contact_email'],
             contact_name=kwargs['contact_name'],
-            location=kwargs['location'],
-            category=kwargs['category']
+            location=kwargs['location'].lower()
         )
         gig.save()
         if gig:
@@ -50,36 +48,25 @@ class GigsList(graphene.ObjectType):
 
 class Query(graphene.ObjectType):
     get_all_gigs = graphene.Field(GigsList,
-                                  limit=graphene.Int(),
-                                  offset=graphene.Int(),
+                                  location=graphene.String(),
                                   description="Returns all gigs and takes the following arguments")
 
     get_gigs_by_location = graphene.Field(GigsList,
-                                       limit=graphene.Int(),
-                                       offset=graphene.Int(),
-                                       location=graphene.String(),
-                                       description="Returns all gigs and takes the following arguments\
-                                       \n- location: Location to search from")
-    
-    get_gigs_by_category = graphene.Field(GigsList,
-                                       limit=graphene.Int(),
-                                       offset=graphene.Int(),
-                                       category=graphene.String(),
-                                       description="Returns all gigs and takes the following arguments\
-                                       \n- category: category to search for")
+                                        location=graphene.String(),
+                                        description="Returns all gigs and takes the following arguments\
+                                        \n- location: Location to search from")
 
     def resolve_get_all_gigs(self, info, **kwargs):
-        gigs = list(GigModel.objects.order_by('-created_at'))
+        location = kwargs['location']
+        if not location:
+            gigs = list(GigModel.objects.order_by('-created_at'))
+        else:
+            gigs = list(GigModel.objects(location=location.lower()).order_by('-created_at'))
         return GigsList(gigs=gigs)
 
     def resolve_get_gigs_by_location(self, info, **kwargs):
         location = kwargs['location']
-        gigs = list(GigModel.objects(location=location))
-        return GigsList(gigs=gigs)
-
-    def resolve_get_gigs_by_category(self, info, **kwargs):
-        category = kwargs['category']
-        gigs = list(GigModel.objects(category=category))
+        gigs = list(GigModel.objects(location=location.lower()))
         return GigsList(gigs=gigs)
 
 class Mutation(graphene.ObjectType):
@@ -91,8 +78,7 @@ class Mutation(graphene.ObjectType):
             [required]\n- contact_email: email of creator[required]\
             [required]\n- contact_name: name of creator[required]\
             [required]\n- contact_phone: phone number of creator[required]\
-            [required]\n- location: location of the gig[required]\
-            [required]\n- category: category of the gig[required]")
+            [required]\n- location: location of the gig[required]")
 
 
 schema = graphene.Schema(query=Query, mutation=Mutation)
